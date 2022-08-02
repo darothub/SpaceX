@@ -5,9 +5,14 @@ import com.mindera.rocketscience.model.Launches
 import retrofit2.http.GET
 
 const val baseUrl = "https://api.spacexdata.com/v3/"
-interface ApiService {
+interface ApiService : BaseApiService {
     @GET("info")
-    suspend fun getCompanyInfo(): CompanyInfo
+    override suspend fun getCompanyInfo(): CompanyInfo
     @GET("launches")
+    override suspend fun getLaunches(): Launches
+}
+
+interface BaseApiService {
+    suspend fun getCompanyInfo(): CompanyInfo
     suspend fun getLaunches(): Launches
 }

@@ -20,7 +20,6 @@ class MainViewModel(
 ): ViewModel() {
     private val _infoFlow = MutableStateFlow<CompanyInfo?>(null)
     val infoFlow = _infoFlow.asStateFlow()
-
     private val _launchesFlowState = MutableStateFlow<UIState>(UIState.Nothing)
     val launchesFlowState = _launchesFlowState.asStateFlow()
 

@@ -2,6 +2,7 @@ package com.mindera.rocketscience.data
 
 import android.util.Log
 import com.mindera.rocketscience.core.remote.ApiService
+import com.mindera.rocketscience.core.remote.BaseApiService
 import com.mindera.rocketscience.domain.launches.LaunchRepository
 import com.mindera.rocketscience.model.Launch
 import com.mindera.rocketscience.model.Launches
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class LaunchRepositoryImpl(
-    private val apiService: ApiService,
+    private val apiService: BaseApiService,
     private val launchDataSource: LaunchDataSource
 ) : LaunchRepository {
     override suspend fun getRemoteLaunches(): List<Launch> {
