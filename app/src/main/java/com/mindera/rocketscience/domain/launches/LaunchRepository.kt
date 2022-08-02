@@ -11,4 +11,5 @@ interface LaunchRepository {
     fun getLocalLaunches(): Flow<List<Launch>>
     fun getAllYears(): Flow<List<String>>
     fun filterLaunches(year: String, result: Int): Flow<List<Launch>>
+    fun filterLaunches(year: String, result: Int, order:Int): Flow<List<Launch>>
 }

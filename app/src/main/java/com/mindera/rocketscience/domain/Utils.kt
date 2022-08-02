@@ -1,5 +1,6 @@
 package com.mindera.rocketscience.domain
 
+import com.mindera.rocketscience.model.Order
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
@@ -24,3 +25,5 @@ fun daysBetween(today: LocalDateTime, lunchDate: LocalDateTime): Long {
 }
 
 fun Boolean.toInt() = if (this) 1 else 0
+
+fun Order.toInt() = if (this == Order.ASC) 0 else 1

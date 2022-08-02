@@ -18,4 +18,6 @@
     <string name="desc">Desc</string>
     <string name="result">Result</string>
     <string name="years">Years</string>
+    <string name="youtube">youtube</string>
+    <string name="wikipedia">wikipedia</string>
 </resources>

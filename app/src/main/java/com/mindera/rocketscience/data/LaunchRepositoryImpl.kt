@@ -25,15 +25,11 @@ class LaunchRepositoryImpl(
 
     override fun getLocalLaunches() = launchDataSource.getLaunches()
     override fun getAllYears(): Flow<List<String>> = launchDataSource.getAllYears()
-    override fun filterLaunches(year: String, result: Int): Flow<List<Launch>> {
-        Log.d("FilterRepos", "Year $year, result: $result")
-        val results =  launchDataSource.filterLaunches(year, result)
-//        results.map { res ->
-//            Log.d("FilterRepos", "Results ${res.last()}")
-//        }
+    override fun filterLaunches(year: String, result: Int): Flow<List<Launch>>
+        =  launchDataSource.filterLaunches(year, result)
 
-        return  results
-    }
+    override fun filterLaunches(year: String, result: Int, order: Int): Flow<List<Launch>>
+         =  launchDataSource.filterLaunches(year, result, order)
 
 
 }

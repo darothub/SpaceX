@@ -24,9 +24,7 @@ class LaunchDataSource(
 
     fun getAllYears() = dao.getGetAllYears()
 
-    fun filterLaunches(year: String, result: Int): Flow<List<Launch>>{
-        val resp =  dao.filterLaunches(year, result)
-        return resp
-    }
+    fun filterLaunches(year: String, result: Int) = dao.filterLaunches(year, result)
+    fun filterLaunches(year: String, result: Int, order: Int) = dao.filterLaunches(year, result, order)
 }
 

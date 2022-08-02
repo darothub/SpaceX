@@ -105,7 +105,7 @@ class LaunchesViewHolder private constructor(val binding: LaunchViewItemBinding)
             else missionResult.setImageResource(R.drawable.ic_baseline_clear_24)
         }
         binding.root.setOnClickListener {
-            clickListener.onClick(item)
+            clickListener.onClick(item, it)
         }
     }
 
@@ -118,6 +118,6 @@ class LaunchesViewHolder private constructor(val binding: LaunchViewItemBinding)
     }
 }
 fun interface LaunchItemListener {
-    fun onClick(launch: Launch)
+    fun onClick(launch: Launch, view: View)
 }
 

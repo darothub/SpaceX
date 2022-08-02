@@ -56,17 +56,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/order"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/drop_down_til"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/result_radiogrp"
         android:layout_marginTop="10dp"
         android:textSize="16sp"/>
     <RadioGroup
         android:id="@+id/order_radiogrp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/result_text"
+        app:layout_constraintTop_toBottomOf="@id/order_text"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         >
         <RadioButton
             android:id="@+id/asc_radio"

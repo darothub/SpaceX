@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindera.rocketscience.domain.info.InfoRepository
 import com.mindera.rocketscience.domain.launches.LaunchRepository
+import com.mindera.rocketscience.domain.toInt
 import com.mindera.rocketscience.model.CompanyInfo
 import com.mindera.rocketscience.model.Launch
 import com.mindera.rocketscience.model.Order
@@ -58,16 +59,22 @@ class MainViewModel(
         started = SharingStarted.WhileSubscribed()
     )
 
-    fun filterLaunches(year: String, result: Int, order: Order) {
-        Log.d("FilterVM", "Year $year, result: $result, order:$order")
-        launchRepository.filterLaunches(year, result).map {
+//    fun filterLaunches(year: String, result: Int, order: Order) {
+//        Log.d("FilterVM", "Year $year, result: $result, order:$order")
+//        launchRepository.filterLaunches(year, result).map {
+//            return@map when(order){
+//                is Order.DESC -> it.reversed()
+//                else -> it
+//            }
+//        }.map { res ->
+//             _launchesFlow.value = res
+//         }.launchIn(viewModelScope)
+//    }
 
-            return@map when(order){
-                is Order.DESC -> it.reversed()
-                else -> it
-            }
-        }.map { res ->
-             _launchesFlow.value = res
-         }.launchIn(viewModelScope)
+    fun filterLaunches(year: String, result: Int, order: Int) {
+        Log.d("FilterVM", "Year $year, result: $result, order:${order}")
+        launchRepository.filterLaunches(year, result, order).map { res ->
+            _launchesFlow.value = res
+        }.launchIn(viewModelScope)
     }
 }
