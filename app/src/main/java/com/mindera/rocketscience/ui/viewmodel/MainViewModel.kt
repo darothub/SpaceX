@@ -3,6 +3,7 @@ package com.mindera.rocketscience.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mindera.rocketscience.domain.UIState
 import com.mindera.rocketscience.domain.info.InfoRepository
 import com.mindera.rocketscience.domain.launches.LaunchRepository
 import com.mindera.rocketscience.domain.toInt
@@ -17,36 +18,32 @@ class MainViewModel(
     private val infoRepository: InfoRepository,
     private val launchRepository: LaunchRepository
 ): ViewModel() {
-    private val _launchesFlow = MutableStateFlow<List<Launch>>(emptyList())
-    val launchesFlow = _launchesFlow.asStateFlow()
-    private val _infoFlow = MutableStateFlow<List<CompanyInfo>>(emptyList())
+    private val _infoFlow = MutableStateFlow<CompanyInfo?>(null)
     val infoFlow = _infoFlow.asStateFlow()
 
+    private val _launchesFlowState = MutableStateFlow<UIState>(UIState.Nothing)
+    val launchesFlowState = _launchesFlowState.asStateFlow()
 
-    fun getLaunches() {
+    fun getCompanyInfoAndLaunches() {
+        _launchesFlowState.value = UIState.Loading
         val launchListFlow = launchRepository.getLocalLaunches()
-        launchListFlow.map{ launches->
-            if (launches.isEmpty()){
-                _launchesFlow.value = getRemoteLaunches()
-            }
-            else{
-                _launchesFlow.value = launches
-            }
-
-        }.launchIn(viewModelScope)
-    }
-
-    suspend fun getCompanyInfo() = suspendCancellableCoroutine<CompanyInfo>{ cont ->
         val infoListFlow = infoRepository.getLocalCompanyInfo()
-        infoListFlow.map { infos ->
-            if(infos.isEmpty()){
-                cont.resume(getRemoteCompanyInfo())
-                return@map
+        infoListFlow.combine(launchListFlow){ infolist, launchlist  ->
+            if (launchlist.isEmpty()){
+                _launchesFlowState.value = UIState.Success(getRemoteLaunches())
             }
             else{
-                cont.resume(infos[0])
-                return@map
+                _launchesFlowState.value = UIState.Success(launchlist)
             }
+            if (infolist.isEmpty()){
+                _infoFlow.value = getRemoteCompanyInfo()
+            }
+           else{
+                infolist.map {
+                    _infoFlow.value = it
+                }
+            }
+
         }.launchIn(viewModelScope)
     }
     private suspend fun getRemoteCompanyInfo() = infoRepository.getCompanyInfo()
@@ -58,23 +55,10 @@ class MainViewModel(
         replay = 0,
         started = SharingStarted.WhileSubscribed()
     )
-
-//    fun filterLaunches(year: String, result: Int, order: Order) {
-//        Log.d("FilterVM", "Year $year, result: $result, order:$order")
-//        launchRepository.filterLaunches(year, result).map {
-//            return@map when(order){
-//                is Order.DESC -> it.reversed()
-//                else -> it
-//            }
-//        }.map { res ->
-//             _launchesFlow.value = res
-//         }.launchIn(viewModelScope)
-//    }
-
     fun filterLaunches(year: String, result: Int, order: Int) {
-        Log.d("FilterVM", "Year $year, result: $result, order:${order}")
+        _launchesFlowState.value = UIState.Loading
         launchRepository.filterLaunches(year, result, order).map { res ->
-            _launchesFlow.value = res
+            _launchesFlowState.value = UIState.Success(res)
         }.launchIn(viewModelScope)
     }
 }

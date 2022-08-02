@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">SpaceX</string>
     <string name="filter">Filter</string>
     <string name="company">Company</string>
     <string name="header_text">Launches</string>
@@ -20,4 +20,5 @@
     <string name="years">Years</string>
     <string name="youtube">youtube</string>
     <string name="wikipedia">wikipedia</string>
+    <string name="showall">Show all</string>
 </resources>

@@ -2,6 +2,8 @@ package com.mindera.rocketscience.ui
 
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +24,9 @@ import com.mindera.rocketscience.MainApplication
 import com.mindera.rocketscience.R
 import com.mindera.rocketscience.databinding.ActivityMainBinding
 import com.mindera.rocketscience.databinding.FilterDialogBinding
+import com.mindera.rocketscience.databinding.StateLayoutBinding
+import com.mindera.rocketscience.domain.UIState
+import com.mindera.rocketscience.domain.UIStateListener
 import com.mindera.rocketscience.domain.toInt
 import com.mindera.rocketscience.model.Launch
 import com.mindera.rocketscience.model.Order
@@ -29,31 +34,48 @@ import com.mindera.rocketscience.ui.adapter.ViewAdapter
 import com.mindera.rocketscience.ui.viewmodel.MainViewModel
 import com.mindera.rocketscience.ui.viewmodel.MainViewModelFactory
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), UIStateListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var dialogBinding: FilterDialogBinding
     lateinit var filterDialog: AlertDialog
+    lateinit var loaderDialog: AlertDialog
     lateinit var adapter: ViewAdapter
+    lateinit var stateLayoutBinding: StateLayoutBinding
     private val mainViewModel by viewModels<MainViewModel>{MainViewModelFactory(
         MainApplication.getInfoRepository(), MainApplication.getLaunchRepository()
     )}
+    private lateinit var uiStateListener: UIStateListener
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
         setupAlertDialog()
+        uiStateListener = this
 
-        mainViewModel.getLaunches()
+        mainViewModel.getCompanyInfoAndLaunches()
         setupRecyclerViewAdapter()
-        lifecycleScope.launchWhenStarted {
-            showCompanyInfo()
-        }
-        lifecycleScope.launchWhenStarted {
-            collectAndSubmitLaunches(adapter)
-        }
+        collectAndSubmitLaunches()
+        collectAndShowCompanyInfo()
+
         dialogBinding.filterBtn.setOnClickListener {
             filterLaunches()
+        }
+    }
+
+    private fun collectAndShowCompanyInfo() {
+        lifecycleScope.launchWhenResumed {
+            mainViewModel.infoFlow.collect { info ->
+                binding.companyDetails.text = getString(
+                    R.string.company_info,
+                    info?.name,
+                    info?.founder,
+                    info?.founded,
+                    info?.employees,
+                    info?.launchSites,
+                    info?.valuation
+                )
+            }
         }
     }
 
@@ -104,24 +126,18 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
-    private suspend fun showCompanyInfo() {
-        val info = mainViewModel.getCompanyInfo()
-        binding.companyDetails.text = getString(
-            R.string.company_info,
-            info.name,
-            info.founder,
-            info.founded,
-            info.employees,
-            info.launchSites,
-            info.valuation
-        )
-    }
-
-    private suspend fun collectAndSubmitLaunches(adapter: ViewAdapter) {
-        mainViewModel.launchesFlow.collect {
-            binding.rcv.adapter = adapter
-            adapter.addHeaderAndSubmitList(it)
+    private fun collectAndSubmitLaunches() {
+        lifecycleScope.launchWhenResumed {
+            mainViewModel.launchesFlowState.collect{ state ->
+                when(state) {
+                    is UIState.Loading -> {
+                        uiStateListener.loading()
+                    }
+                    is UIState.Success<*> -> {
+                        uiStateListener.onSuccess(state.data)
+                    }
+                }
+            }
         }
     }
 
@@ -159,6 +175,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 filterDialog.show()
             }
+            R.id.showall -> {
+                mainViewModel.getCompanyInfoAndLaunches()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -175,6 +194,29 @@ class MainActivity : AppCompatActivity() {
         dialogBinding = FilterDialogBinding.inflate(layoutInflater)
         builder.setView(dialogBinding.root)
         filterDialog = builder.create()
+    }
+
+    private fun setupLoaderDialog() {
+        val builder = MaterialAlertDialogBuilder(this)
+        stateLayoutBinding = StateLayoutBinding.inflate(layoutInflater)
+        builder.setView(stateLayoutBinding.root)
+        loaderDialog = builder.create()
+        loaderDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    }
+
+    override fun <T> onSuccess(data: T) {
+        loaderDialog.dismiss()
+        binding.rcv.adapter = adapter
+        adapter.addHeaderAndSubmitList(data as? List<Launch>)
+    }
+
+    override fun onError(error: String?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun loading() {
+        setupLoaderDialog()
+        loaderDialog.show()
     }
 }
 
