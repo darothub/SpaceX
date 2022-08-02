@@ -25,6 +25,7 @@ import com.mindera.rocketscience.databinding.FilterDialogBinding
 import com.mindera.rocketscience.domain.toInt
 import com.mindera.rocketscience.model.Launch
 import com.mindera.rocketscience.model.Order
+import com.mindera.rocketscience.ui.adapter.ViewAdapter
 import com.mindera.rocketscience.ui.viewmodel.MainViewModel
 import com.mindera.rocketscience.ui.viewmodel.MainViewModelFactory
 
@@ -162,7 +163,7 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    suspend fun getYearsForDialogDropDown() {
+    private suspend fun getYearsForDialogDropDown() {
         mainViewModel.getAllYears().collect {
             val adapter = ArrayAdapter(this, R.layout.drop_down_text_item, it)
             dialogBinding.dropDownAc.setAdapter(adapter)
